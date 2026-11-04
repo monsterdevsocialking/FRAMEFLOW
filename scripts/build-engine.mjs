@@ -86,6 +86,14 @@ projectsUi = projectsUi.replace(
   '          <div className="max-w-[1920px] mx-auto px-6 py-8">\\n            <ProjectList',
   '          <div className="max-w-[1920px] mx-auto px-6 py-8">\\n            <div className="mb-6"><h1 className="text-2xl font-semibold tracking-tight">Os meus projetos</h1><p className="mt-1 text-sm text-muted-foreground">Cria um vídeo novo ou continua um projeto guardado.</p></div>\\n            <ProjectList',
 )
+for (const line of [
+  "import { Separator } from '@/components/ui/separator'\\n",
+  "import { Plus, Upload, FolderOpen, File, Github, BookOpen } from 'lucide-react'\\n",
+  "import { DiscordIcon } from '@/components/brand/discord-icon'\\n",
+  "import { DISCORD_INVITE_URL } from '@/config/community'\\n",
+  "import { WorkspaceIndicator } from '@/features/workspace-gate'\\n",
+  "import { LanguageSwitcher } from '@/shared/ui/language-switcher'\\n",
+]) projectsUi = projectsUi.replace(line, '')
 writeFileSync(projectsPage, projectsUi)
 
 // Reduce editor toolbar noise while retaining save, export, settings and shortcuts.
@@ -102,6 +110,14 @@ toolbar = toolbar.replace(
   '      <LocalInferenceStatusPill />\\n',
   '',
 )
+for (const line of [
+  "  BookOpen,\\n",
+  "  Github,\\n",
+  "import { DiscordIcon } from '@/components/brand/discord-icon'\\n",
+  "import { DISCORD_INVITE_URL } from '@/config/community'\\n",
+  "import { LocalInferenceStatusPill } from './local-inference-status-pill'\\n",
+  "import { LanguageSwitcher } from '@/shared/ui/language-switcher'\\n",
+]) toolbar = toolbar.replace(line, '')
 writeFileSync(toolbarPath, toolbar)
 
 // Preserve the upstream MIT notice in the deployed static application.
