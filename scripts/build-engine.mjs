@@ -53,6 +53,57 @@ export const Route = createFileRoute('/')({
 })
 `)
 
+
+function replaceBetween(source, startMarker, endMarker, replacement, label) {
+  const start = source.indexOf(startMarker)
+  const end = source.indexOf(endMarker, start + startMarker.length)
+  if (start < 0 || end < 0) throw new Error(`Could not apply FRAMEFLOW UX patch: ${label}`)
+  return source.slice(0, start) + replacement + source.slice(end)
+}
+
+// Simplify the projects home: keep only the two actions people need to start.
+const projectsPage = resolve(work, 'src/routes/projects/index.lazy.tsx')
+let projectsUi = readFileSync(projectsPage, 'utf8')
+projectsUi = replaceBetween(
+  projectsUi,
+  '            <div className="flex items-center gap-3">',
+  '\\n\\n            {/* Hidden file input',
+  `            <div className="flex items-center gap-2">
+              <Button variant="outline" size="lg" className="gap-2 px-4" onClick={handleImportClick}>
+                <Upload className="w-4 h-4" />
+                Importar projeto
+              </Button>
+              <Link to="/projects/new">
+                <Button size="lg" className="gap-2 px-5">
+                  <Plus className="w-4 h-4" />
+                  Criar projeto
+                </Button>
+              </Link>
+            </div>`,
+  'projects header actions',
+)
+projectsUi = projectsUi.replace(
+  '          <div className="max-w-[1920px] mx-auto px-6 py-8">\\n            <ProjectList',
+  '          <div className="max-w-[1920px] mx-auto px-6 py-8">\\n            <div className="mb-6"><h1 className="text-2xl font-semibold tracking-tight">Os meus projetos</h1><p className="mt-1 text-sm text-muted-foreground">Cria um vídeo novo ou continua um projeto guardado.</p></div>\\n            <ProjectList',
+)
+writeFileSync(projectsPage, projectsUi)
+
+// Reduce editor toolbar noise while retaining save, export, settings and shortcuts.
+const toolbarPath = resolve(work, 'src/features/editor/components/toolbar.tsx')
+let toolbar = readFileSync(toolbarPath, 'utf8')
+toolbar = replaceBetween(
+  toolbar,
+  '        {/* Socials */}',
+  '        {/* Utility */}',
+  '        {/* FRAMEFLOW keeps external community links out of the editing workflow. */}\\n\\n',
+  'editor social links',
+)
+toolbar = toolbar.replace(
+  '      <LocalInferenceStatusPill />\\n',
+  '',
+)
+writeFileSync(toolbarPath, toolbar)
+
 // Preserve the upstream MIT notice in the deployed static application.
 const licenseTarget = resolve(work, 'public/third-party-licenses')
 mkdirSync(licenseTarget, { recursive: true })
