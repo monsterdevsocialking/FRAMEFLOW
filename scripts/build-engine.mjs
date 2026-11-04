@@ -156,7 +156,7 @@ const categoryReplacement = `          ))}
                     setActiveTab(id)
                     if (!leftSidebarOpen) toggleLeftSidebar()
                   }}
-                  className={`w-full flex items-center gap-2 rounded-md px-3 py-2 text-left text-sm hover:bg-accent ${activeTab === id ? 'bg-accent text-accent-foreground' : 'text-muted-foreground'}`}
+                  className={'w-full flex items-center gap-2 rounded-md px-3 py-2 text-left text-sm hover:bg-accent ' + (activeTab === id ? 'bg-accent text-accent-foreground' : 'text-muted-foreground')}
                 >
                   <Icon className="h-4 w-4" />
                   {label}
