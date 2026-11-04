@@ -1,0 +1,18 @@
+import { useRef, useState } from "react";
+import { Aperture, FolderOpen, Music, Type, Captions, Sparkles, Download, Plus, Play, Film, AudioLines } from "lucide-react";
+type Item = { id:string; name:string; url:string; kind:string };
+export default function App(){
+ const [items,setItems]=useState<Item[]>([]);
+ const [selected,setSelected]=useState<Item|null>(null);
+ const [ratio,setRatio]=useState("9:16");
+ const input=useRef<HTMLInputElement>(null);
+ function importFiles(files:FileList|null){if(!files)return;const next=Array.from(files).map(f=>({id:crypto.randomUUID(),name:f.name,url:URL.createObjectURL(f),kind:f.type.startsWith("video/")?"video":f.type.startsWith("audio/")?"audio":"image"}));setItems(old=>[...old,...next]);if(!selected&&next[0])setSelected(next[0]);}
+ return <main className="shell">
+ <header><div className="brand"><Aperture/><div><b>FRAMEFLOW</b><small>CREATIVE VIDEO EDITOR</small></div></div><span>Projeto sem título</span><button className="export" onClick={()=>alert("A exportação será ligada ao motor FreeCut na próxima integração.")}><Download size={16}/> Exportar</button></header>
+ <section className="work"><nav>{[["Media",FolderOpen],["Áudio",Music],["Texto",Type],["Legendas",Captions],["Efeitos",Sparkles]].map(([label,Icon]:any)=><button key={label}><Icon/><span>{label}</span></button>)}</nav>
+ <aside className="library"><h3>Biblioteca de mídia</h3><button className="upload" onClick={()=>input.current?.click()}><Plus/> Importar ficheiros</button><input ref={input} hidden type="file" multiple accept="video/*,image/*,audio/*" onChange={e=>importFiles(e.target.files)}/>{items.map(item=><button className="item" key={item.id} onClick={()=>setSelected(item)}>{item.kind==="video"?<Film/>:<AudioLines/>}{item.name}</button>)}</aside>
+ <section className="preview"><div className="preview-head">Pré-visualização <select value={ratio} onChange={e=>setRatio(e.target.value)}><option>9:16</option><option>16:9</option><option>1:1</option><option>4:5</option></select></div><div className="stage" style={{aspectRatio:ratio}}>{selected?.kind==="video"?<video src={selected.url} controls/>:selected?.kind==="image"?<img src={selected.url}/>:<div><Aperture size={42}/><h3>O teu próximo vídeo começa aqui.</h3><p>Importa mídia para começar a criar.</p></div>}</div><button className="play"><Play/></button></section>
+ <aside className="properties"><h3>Propriedades</h3>{selected?<><b>{selected.name}</b><p>Transformação</p><label>Escala</label><input type="range" defaultValue="100"/><label>Opacidade</label><input type="range" defaultValue="100"/></>:<p>Seleciona um elemento para editar.</p>}</aside></section>
+ <section className="timeline"><div className="timeline-title">Timeline <small>Sequência principal</small></div><div className="tracks"><div className="labels"><span>Vídeo 1</span><span>Texto</span><span>Áudio 1</span></div><div className="rows">{[0,1,2].map((row)=><div className="track" key={row}>{row===0?items.filter(x=>x.kind!=="audio").map((x,i)=><button key={x.id} onClick={()=>setSelected(x)} style={{left:i*170}}>{x.name}</button>):row===2?items.filter(x=>x.kind==="audio").map((x,i)=><button key={x.id} onClick={()=>setSelected(x)} style={{left:i*170}}>{x.name}</button>):<span>Faixa de títulos e legendas</span>}</div>)}</div></div></section>
+ <footer>FRAMEFLOW · Os ficheiros importados permanecem no teu navegador <span>Motor FreeCut: integração pendente</span></footer></main>;
+}
