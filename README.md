@@ -1,37 +1,29 @@
 # FRAMEFLOW
 
-**Creative video editor for the web.** A creator-first video editing experience built on top of the MIT-licensed FreeCut project.
+**A browser-based video editor built on the real FreeCut editing engine.**
 
-> Current repository status: FRAMEFLOW product shell and integration groundwork. The upstream FreeCut engine has not yet been vendored into this repository. Do not describe this shell as a working video renderer until the upstream runtime is integrated and tested.
+FRAMEFLOW uses the MIT-licensed [FreeCut](https://github.com/walterlow/freecut) project as its editing engine. The production build pins a reviewed upstream commit, applies a small FRAMEFLOW identity patch, and builds the complete upstream application rather than a mock editor shell.
 
-## Upstream and licensing
+## What works in the engine
 
-The intended upstream base is [FreeCut](https://github.com/walterlow/freecut), licensed under the MIT License. Its original copyright and license notice must be preserved when its source is imported. This repository's new FRAMEFLOW-authored files are also MIT unless a file says otherwise. Third-party dependencies, fonts, media, AI models, and codecs retain their own licenses and must be audited independently.
+The upstream editor includes a multi-track timeline, video/audio/image/text clips, trim and split operations, track controls, preview and playback, effects, transitions, keyframes, audio controls, project storage, and browser-based export. Feature availability depends on browser capabilities; Chromium-based browsers are recommended.
 
-## Product direction
+## Run locally
 
-- Browser-first, local-first editing; media should remain on the user's device.
-- Creator-friendly workflow for vertical, square, and landscape social video.
-- Preserve FreeCut's timeline, preview, WebGPU/WebCodecs pipeline, project storage, and export rather than reimplementing those systems.
-- FRAMEFLOW visual identity is independent and does not imply endorsement by FreeCut maintainers.
-
-## Current starter
-
-The initial app shell includes a responsive editor workspace, local media selection and preview, aspect-ratio presets, and an illustrative multi-track timeline UI. Timeline controls are currently UI scaffolding and do not yet alter an actual FreeCut project or render a finished timeline. Real editing/export becomes available after the upstream engine is integrated.
-
-## Run
-
-This shell uses Vite + React + TypeScript.
+The production build script downloads the pinned FreeCut source and builds it:
 
 ```bash
 npm install
-npm run dev
-``
+npm run build
+```
 
-## Browser target
+To develop directly against the engine, clone [FreeCut](https://github.com/walterlow/freecut), install its dependencies with `ONNXRUNTIME_NODE_INSTALL_CUDA=skip npm ci`, and run `npm run dev` in that checkout.
 
-Use a recent Chromium browser (Chrome/Edge) for future WebGPU, WebCodecs, OPFS, and File System Access API integration. Browser capability support varies by device.
+## Architecture and licensing
 
-## MIT notice
+- FRAMEFLOW-authored deployment and integration scripts are MIT licensed under [LICENSE](./LICENSE).
+- FreeCut is MIT licensed. Its original notice is preserved in the deployed app at `/third-party-licenses/FREECUT-MIT-LICENSE.txt`.
+- Upstream source is pinned in `scripts/build-engine.mjs`; the integration patch is intentionally small.
+- Third-party packages, fonts, codecs, and AI models retain their own licenses and terms.
 
-See [LICENSE](./LICENSE). When incorporating FreeCut source, retain its original MIT license and copyright notice in all substantial copies.
+FRAMEFLOW is an independent project and is not endorsed by the FreeCut maintainers.
