@@ -20,8 +20,11 @@ function run(command, args, options = {}) {
 }
 
 if (existsSync(work)) rmSync(work, { recursive: true, force: true })
-run('git', ['clone', '--depth', '1', repo, work])
-run('git', ['checkout', upstreamCommit], { cwd: work })
+mkdirSync(work, { recursive: true })
+run('git', ['init'], { cwd: work })
+run('git', ['remote', 'add', 'origin', repo], { cwd: work })
+run('git', ['fetch', '--depth', '1', 'origin', upstreamCommit], { cwd: work })
+run('git', ['checkout', '--detach', 'FETCH_HEAD'], { cwd: work })
 
 // White-label the upstream app while keeping the original engine and license notice.
 const htmlPath = resolve(work, 'index.html')
