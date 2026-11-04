@@ -33,7 +33,7 @@ writeFileSync(htmlPath, html)
 
 const logoPath = resolve(work, 'src/components/brand/freecut-logo.tsx')
 let logo = readFileSync(logoPath, 'utf8')
-logo = logo.replaceAll('FreeCutLogo', 'FrameflowLogo').replaceAll('FreeCut', 'FRAMEFLOW')
+logo = logo.replace('>FreeCut</span>', '>FRAMEFLOW</span>')
 writeFileSync(logoPath, logo)
 
 const languagePath = resolve(work, 'src/i18n/index.ts')
