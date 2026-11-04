@@ -66,8 +66,8 @@ const projectsPage = resolve(work, 'src/routes/projects/index.lazy.tsx')
 let projectsUi = readFileSync(projectsPage, 'utf8')
 projectsUi = replaceBetween(
   projectsUi,
-  '            <div className="flex items-center gap-3">',
-  '\\n\\n            {/* Hidden file input',
+  ' <div className="flex items-center gap-3">',
+  '            {/* Hidden file input',
   `            <div className="flex items-center gap-2">
               <Button variant="outline" size="lg" className="gap-2 px-4" onClick={handleImportClick}>
                 <Upload className="w-4 h-4" />
