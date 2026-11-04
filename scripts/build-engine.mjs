@@ -120,6 +120,59 @@ for (const line of [
 ]) toolbar = toolbar.replace(line, '')
 writeFileSync(toolbarPath, toolbar)
 
+ 
+// Keep the four everyday tools visible; move specialist panels into one
+// clearly labelled "More tools" menu without removing their functionality.
+const mediaSidebarPath = resolve(work, 'src/features/editor/components/media-sidebar.tsx')
+let mediaSidebar = readFileSync(mediaSidebarPath, 'utf8')
+mediaSidebar = mediaSidebar.replace(
+  "  WandSparkles,\\n",
+  "  WandSparkles,\\n  MoreHorizontal,\\n",
+)
+mediaSidebar = mediaSidebar.replace(
+  "{categories.map(({ id, icon: Icon, label }) => (",
+  "{categories.filter(({ id }) => ['media', 'text', 'effects', 'transitions'].includes(id)).map(({ id, icon: Icon, label }) => (",
+)
+const categoryEnd = `          ))}
+        </div>
+      </div>
+
+      {/* Content Panel`
+const categoryReplacement = `          ))}
+          <details className="relative">
+            <summary
+              aria-label="Mais ferramentas"
+              title="Mais ferramentas"
+              className="w-9 h-9 list-none cursor-pointer rounded-lg flex items-center justify-center text-muted-foreground hover:text-foreground hover:bg-secondary/50"
+            >
+              <MoreHorizontal className="w-4 h-4" />
+            </summary>
+            <div className="absolute left-10 bottom-0 z-50 min-w-44 rounded-lg border border-border bg-popover p-1 shadow-xl">
+              {categories.filter(({ id }) => !['media', 'text', 'effects', 'transitions'].includes(id)).map(({ id, icon: Icon, label }) => (
+                <button
+                  key={id}
+                  type="button"
+                  onClick={() => {
+                    setActiveTab(id)
+                    if (!leftSidebarOpen) toggleLeftSidebar()
+                  }}
+                  className={`w-full flex items-center gap-2 rounded-md px-3 py-2 text-left text-sm hover:bg-accent ${activeTab === id ? 'bg-accent text-accent-foreground' : 'text-muted-foreground'}`}
+                >
+                  <Icon className="h-4 w-4" />
+                  {label}
+                </button>
+              ))}
+            </div>
+          </details>
+        </div>
+      </div>
+
+      {/* Content Panel`
+if (!mediaSidebar.includes(categoryEnd)) throw new Error("Could not locate media category rail end")
+mediaSidebar = mediaSidebar.replace(categoryEnd, categoryReplacement)
+writeFileSync(mediaSidebarPath, mediaSidebar)
+
+
 // Preserve the upstream MIT notice in the deployed static application.
 const licenseTarget = resolve(work, 'public/third-party-licenses')
 mkdirSync(licenseTarget, { recursive: true })
