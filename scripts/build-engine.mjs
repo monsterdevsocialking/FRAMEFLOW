@@ -54,124 +54,24 @@ export const Route = createFileRoute('/')({
 `)
 
 
-function replaceBetween(source, startMarker, endMarker, replacement, label) {
-  const start = source.indexOf(startMarker)
-  const end = source.indexOf(endMarker, start + startMarker.length)
-  if (start < 0 || end < 0) throw new Error(`Could not apply FRAMEFLOW UX patch: ${label}`)
-  return source.slice(0, start) + replacement + source.slice(end)
+
+// Keep the upstream interface and every editing tool unchanged.
+// Apply only FRAMEFLOW brand colors through the existing design tokens.
+const themePath = resolve(work, 'src/index.css')
+let theme = readFileSync(themePath, 'utf8')
+theme += `\n\n/* FRAMEFLOW brand palette: preserve the original layout and controls. */
+@layer base {
+  :root {
+    --primary: oklch(0.76 0.14 205);
+    --primary-foreground: oklch(0.16 0.025 235);
+    --ring: oklch(0.76 0.14 205);
+    --sidebar-primary: oklch(0.76 0.14 205);
+    --sidebar-primary-foreground: oklch(0.16 0.025 235);
+    --sidebar-ring: oklch(0.76 0.14 205);
+  }
 }
-
-// Simplify the projects home: keep only the two actions people need to start.
-const projectsPage = resolve(work, 'src/routes/projects/index.lazy.tsx')
-let projectsUi = readFileSync(projectsPage, 'utf8')
-projectsUi = replaceBetween(
-  projectsUi,
-  ' <div className="flex items-center gap-3">',
-  '            {/* Hidden file input',
-  `            <div className="flex items-center gap-2">
-              <Button variant="outline" size="lg" className="gap-2 px-4" onClick={handleImportClick}>
-                <Upload className="w-4 h-4" />
-                Importar projeto
-              </Button>
-              <Link to="/projects/new">
-                <Button size="lg" className="gap-2 px-5">
-                  <Plus className="w-4 h-4" />
-                  Criar projeto
-                </Button>
-              </Link>
-            </div>`,
-  'projects header actions',
-)
-projectsUi = projectsUi.replace(
-  '          <div className="max-w-[1920px] mx-auto px-6 py-8">\\n            <ProjectList',
-  '          <div className="max-w-[1920px] mx-auto px-6 py-8">\\n            <div className="mb-6"><h1 className="text-2xl font-semibold tracking-tight">Os meus projetos</h1><p className="mt-1 text-sm text-muted-foreground">Cria um vídeo novo ou continua um projeto guardado.</p></div>\\n            <ProjectList',
-)
-for (const line of [
-  "import { Separator } from '@/components/ui/separator'\\n",
-  "import { Plus, Upload, FolderOpen, File, Github, BookOpen } from 'lucide-react'\\n",
-  "import { DiscordIcon } from '@/components/brand/discord-icon'\\n",
-  "import { DISCORD_INVITE_URL } from '@/config/community'\\n",
-  "import { WorkspaceIndicator } from '@/features/workspace-gate'\\n",
-  "import { LanguageSwitcher } from '@/shared/ui/language-switcher'\\n",
-]) projectsUi = projectsUi.replace(line, '')
-writeFileSync(projectsPage, projectsUi)
-
-// Reduce editor toolbar noise while retaining save, export, settings and shortcuts.
-const toolbarPath = resolve(work, 'src/features/editor/components/toolbar.tsx')
-let toolbar = readFileSync(toolbarPath, 'utf8')
-toolbar = replaceBetween(
-  toolbar,
-  '        {/* Socials */}',
-  '        {/* Utility */}',
-  '        {/* FRAMEFLOW keeps external community links out of the editing workflow. */}\\n\\n',
-  'editor social links',
-)
-toolbar = toolbar.replace(
-  '      <LocalInferenceStatusPill />\\n',
-  '',
-)
-for (const line of [
-  "  BookOpen,\\n",
-  "  Github,\\n",
-  "import { DiscordIcon } from '@/components/brand/discord-icon'\\n",
-  "import { DISCORD_INVITE_URL } from '@/config/community'\\n",
-  "import { LocalInferenceStatusPill } from './local-inference-status-pill'\\n",
-  "import { LanguageSwitcher } from '@/shared/ui/language-switcher'\\n",
-]) toolbar = toolbar.replace(line, '')
-writeFileSync(toolbarPath, toolbar)
-
- 
-// Keep the four everyday tools visible; move specialist panels into one
-// clearly labelled "More tools" menu without removing their functionality.
-const mediaSidebarPath = resolve(work, 'src/features/editor/components/media-sidebar.tsx')
-let mediaSidebar = readFileSync(mediaSidebarPath, 'utf8')
-mediaSidebar = mediaSidebar.replace(
-  "  WandSparkles,\\n",
-  "  WandSparkles,\\n  MoreHorizontal,\\n",
-)
-mediaSidebar = mediaSidebar.replace(
-  "{categories.map(({ id, icon: Icon, label }) => (",
-  "{categories.filter(({ id }) => ['media', 'text', 'effects', 'transitions'].includes(id)).map(({ id, icon: Icon, label }) => (",
-)
-const categoryEnd = `          ))}
-        </div>
-      </div>
-
-      {/* Content Panel`
-const categoryReplacement = `          ))}
-          <details className="relative">
-            <summary
-              aria-label="Mais ferramentas"
-              title="Mais ferramentas"
-              className="w-9 h-9 list-none cursor-pointer rounded-lg flex items-center justify-center text-muted-foreground hover:text-foreground hover:bg-secondary/50"
-            >
-              <MoreHorizontal className="w-4 h-4" />
-            </summary>
-            <div className="absolute left-10 bottom-0 z-50 min-w-44 rounded-lg border border-border bg-popover p-1 shadow-xl">
-              {categories.filter(({ id }) => !['media', 'text', 'effects', 'transitions'].includes(id)).map(({ id, icon: Icon, label }) => (
-                <button
-                  key={id}
-                  type="button"
-                  onClick={() => {
-                    setActiveTab(id)
-                    if (!leftSidebarOpen) toggleLeftSidebar()
-                  }}
-                  className={'w-full flex items-center gap-2 rounded-md px-3 py-2 text-left text-sm hover:bg-accent ' + (activeTab === id ? 'bg-accent text-accent-foreground' : 'text-muted-foreground')}
-                >
-                  <Icon className="h-4 w-4" />
-                  {label}
-                </button>
-              ))}
-            </div>
-          </details>
-        </div>
-      </div>
-
-      {/* Content Panel`
-if (!mediaSidebar.includes(categoryEnd)) throw new Error("Could not locate media category rail end")
-mediaSidebar = mediaSidebar.replace(categoryEnd, categoryReplacement)
-writeFileSync(mediaSidebarPath, mediaSidebar)
-
+`
+writeFileSync(themePath, theme)
 
 // Preserve the upstream MIT notice in the deployed static application.
 const licenseTarget = resolve(work, 'public/third-party-licenses')
